@@ -88,7 +88,7 @@ public class DumbPlayer implements Player {
 			String temp = word.toString();
 			for(int i = m.get(key); i > 0; i--)
 			{
-				int t = word.indexOf(key);
+				int t = temp.indexOf(key);
 				if(t == -1)
 					return false;
 				else
