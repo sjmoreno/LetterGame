@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/37/trunk/f10_4444_seven/src/seven/ui
+END
+GameConfig.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/37/trunk/f10_4444_seven/src/seven/ui/GameConfig.java
+END
+GameEngine.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/37/trunk/f10_4444_seven/src/seven/ui/GameEngine.java
+END
+Letter.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/35/trunk/f10_4444_seven/src/seven/ui/Letter.java
+END
+OpenState.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/OpenState.java
+END
+GameResult.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/GameResult.java
+END
+TestRunner.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/TestRunner.java
+END
+IOController.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/IOController.java
+END
+Scrabble.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/Scrabble.java
+END
+GameController.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/37/trunk/f10_4444_seven/src/seven/ui/GameController.java
+END
+CSVReader.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/CSVReader.java
+END
+GameEngine.form
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/GameEngine.form
+END
+SecretState.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/SecretState.java
+END
+Player.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/37/trunk/f10_4444_seven/src/seven/ui/Player.java
+END
+ScrabbleValues.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/ScrabbleValues.java
+END
+PlayerBids.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/6/trunk/f10_4444_seven/src/seven/ui/PlayerBids.java
+END
