@@ -39,7 +39,7 @@ public class DumbPlayer implements Player {
 	private Random random = new Random();
 	
 	// map number of letters to set of words of that length
-	Map<Integer,Set<String>> Words;
+	Map<Integer,Set<String>> wordsBySize;
 	
 	// frequency of words given a letter
 	Map<Character, Double> freqs;
@@ -53,7 +53,7 @@ public class DumbPlayer implements Player {
 		ArrayList<Word> wtmp = new ArrayList<Word>(55000);
 		try {
 			// you can use textFiles/dictionary.txt if you want the whole list
-			r = new BufferedReader(new FileReader("textFiles/super-small-wordlist.txt"));
+			r = new BufferedReader(new FileReader("textFiles/seven_letter_words.txt"));
 			while (null != (line = r.readLine())) {
 				wtmp.add(new Word(line.trim()));
 			}
@@ -106,28 +106,19 @@ public class DumbPlayer implements Player {
      */
 	public void newGame(int id, int number_of_rounds, int number_of_players) {
 		myID = id;
-		this.Words = new HashMap<Integer, Set<String>>();
-		for(int i = 1; i < 8; i++)
-		{
-			Words.put(i, new HashSet<String>());
-		}
-		for(int i = 0; i < wordlist.length; i++)
-		{
-			int s = wordlist[i].toString().length();
-			if(s<=7)
-				Words.get(s).add(wordlist[i].toString());
-		}
 		
-		for(String w : Words.get(7))
-		{
-			for(int i = 0; i < w.length(); i++)
-			{
-				char c = w.charAt(i);
-				
+		this.wordsBySize = new HashMap<Integer, Set<String>>();
+		for(int i = 1; i < 8; i++) {
+			wordsBySize.put(i, new HashSet<String>());
+		}
+		for(int i = 0; i < wordlist.length; i++) {
+			int s = wordlist[i].word.length();
+			if(s<=7) {
+				wordsBySize.get(s).add(wordlist[i].word);
 			}
-		}
-		
-		
+		}	
+		logger.debug("is this getting called at all");
+		logger.debug(wordsBySize.get(7).size());
 	}
 
 
@@ -154,16 +145,30 @@ public class DumbPlayer implements Player {
 		}
 	}
 	
-	private int calculateBid(String chars) {
+	private int calculateBid(ArrayList<Letter> rack, Letter tile) {
+		int bid = tile.getValue();
+		StringBuffer b = new StringBuffer(tile.toString());
+		for (Letter l : rack) {
+			b.append(l.toString());
+		}
+		int premium = calculatePremium(b.toString());
+		return bid + premium;
+	}
+	
+	private int calculatePremium(String chars) {
 		int count = 0;
-		for (String word : Words.get(7)) {
+		for (String word : wordsBySize.get(7)) {
 			if (isPossible(chars, word)) {
 				count++;
 			}
 		}
-		double perc = (count / Words.get(7).size()) * 100;
-		double magic = chars.length() * perc;
-		return (int) Math.round(magic * 10);
+		double perc = count * 100 / wordsBySize.get(7).size();
+		logger.debug("percentage=" + perc);
+		logger.debug("rack size=" + chars.length());
+		double magic = chars.length() * perc / 10;
+		int premium = (int) Math.round(magic);
+		logger.debug("premium=" + premium);
+		return premium;
 	}
 
 	/*
@@ -178,11 +183,9 @@ public class DumbPlayer implements Player {
 		//logger.trace("myID= " + myID + " and my score is " + secretState.getScore());
 
 		// randomly bid up to half of the remaining points
+		int bid = this.calculateBid(secretState.getSecretLetters(), bidLetter);
 		
-		
-		
-		
-		return random.nextInt(secretState.getScore()/2);
+		return bid;
 	}
 
 	
