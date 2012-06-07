@@ -39,12 +39,19 @@ public class DumbPlayer implements Player {
 	private Random random = new Random();
 	
 	// map number of letters to set of words of that length
-	Map<Integer,Set<String>> wordsBySize;
+	private Map<Integer,Set<String>> wordsBySize;
+	
 	
 	// frequency of words given a letter
-	Map<Character, Double> freqs;
+	private Map<Character, Double> freqs;
 	
+	// running average winning bid value by letter
+	private Map<Character, Double> averageWinningBids;
+	private double averageBid = 0.0;
+	private double averageWinningBid = 0.0;
 	
+	// set of possibilities
+	Set<String> possibilites;
 	
 	/* This code initializes the word list */
 	static {
@@ -53,7 +60,7 @@ public class DumbPlayer implements Player {
 		ArrayList<Word> wtmp = new ArrayList<Word>(55000);
 		try {
 			// you can use textFiles/dictionary.txt if you want the whole list
-			r = new BufferedReader(new FileReader("textFiles/seven_letter_words.txt"));
+			r = new BufferedReader(new FileReader("textFiles/super-small-wordlist.txt"));
 			while (null != (line = r.readLine())) {
 				wtmp.add(new Word(line.trim()));
 			}
@@ -117,8 +124,9 @@ public class DumbPlayer implements Player {
 				wordsBySize.get(s).add(wordlist[i].word);
 			}
 		}	
-		logger.debug("is this getting called at all");
-		logger.debug(wordsBySize.get(7).size());
+		
+		averageWinningBids = new HashMap<Character, Double>();
+		possibilites = new HashSet<String>();
 	}
 
 
@@ -143,6 +151,8 @@ public class DumbPlayer implements Player {
 			//logger.trace("myID = " + myID + " and I'm adding " + l + " from the secret state");
 			currentLetters.add(l.getCharacter());
 		}
+		
+		possibilites.addAll(wordsBySize.get(7));
 	}
 	
 	private int calculateBid(ArrayList<Letter> rack, Letter tile) {
@@ -151,23 +161,66 @@ public class DumbPlayer implements Player {
 		for (Letter l : rack) {
 			b.append(l.toString());
 		}
-		int premium = calculatePremium(b.toString());
+		int premium = calculatePremium(b.toString(), tile);
+		if (premium  == Integer.MIN_VALUE) {
+			return 0;
+		}
 		return bid + premium;
 	}
 	
-	private int calculatePremium(String chars) {
-		int count = 0;
-		for (String word : wordsBySize.get(7)) {
+	private void narrowPossibilities() {
+		Set<String> newPoss = new HashSet<String>();
+		StringBuffer b = new StringBuffer();
+		for (Character c : currentLetters) {
+			b.append(c);
+		}
+		String chars = b.toString();
+		for (String word : possibilites) {
 			if (isPossible(chars, word)) {
-				count++;
+				newPoss.add(word);
 			}
 		}
-		double perc = count * 100 / wordsBySize.get(7).size();
-		logger.debug("percentage=" + perc);
-		logger.debug("rack size=" + chars.length());
-		double magic = chars.length() * perc / 10;
-		int premium = (int) Math.round(magic);
-		logger.debug("premium=" + premium);
+		possibilites.clear();
+		possibilites.addAll(newPoss);
+	}
+	
+	private int calculatePremium(String chars, Letter tile) {
+		Set<String> newPoss = new HashSet<String>();
+		for (String word : possibilites) {
+			if (isPossible(chars, word)) {
+				newPoss.add(word);
+			}
+		}
+		
+		if (newPoss.isEmpty()) {
+			return Integer.MIN_VALUE;
+		}
+		
+		// get percentage
+		double p = newPoss.size() * 100 / possibilites.size();
+		logger.debug("percentage=" + p);
+		
+		int premium = 0;
+		if (averageWinningBid > 0) {
+			if (averageWinningBids.get(tile.getCharacter()) != null) {
+				premium = (int) Math.round(averageWinningBids.get(tile.getCharacter())) - tile.getValue();
+			} else {
+				// no record for this letter
+				premium = (int) Math.round(averageWinningBid) - tile.getValue();
+			}
+		} else {
+			// first bid
+			premium = 0;
+		}
+		
+		logger.debug("premium based on bidding=" + premium);
+		
+		if (p > 30) {
+			premium = (int) Math.round(premium + (p / 7));
+		} 
+		
+		logger.debug("premium weighted by frequency=" + premium);
+		
 		return premium;
 	}
 
@@ -182,7 +235,6 @@ public class DumbPlayer implements Player {
 		//logger.trace("myID=" + myID + " and I'm bidding on " + bidLetter);
 		//logger.trace("myID= " + myID + " and my score is " + secretState.getScore());
 
-		// randomly bid up to half of the remaining points
 		int bid = this.calculateBid(secretState.getSecretLetters(), bidLetter);
 		
 		return bid;
@@ -195,9 +247,24 @@ public class DumbPlayer implements Player {
 	 * other players' bids. 
 	 */
     public void bidResult(boolean won, Letter letter, PlayerBids bids) {
+
+    	Double ab = averageWinningBids.get(letter.getCharacter());
+    	if (ab == null) {
+    		averageWinningBids.put(letter.getCharacter(), new Double(bids.getWinAmmount()));
+    	} else {
+    		ab = (ab + bids.getWinAmmount()) / 2;
+    		averageWinningBids.put(letter.getCharacter(), ab);
+    	}
+    	if (averageWinningBid == 0.0) {
+    		averageWinningBid = (double) bids.getWinAmmount();
+    	} else {
+    		averageWinningBid = (averageWinningBid + bids.getWinAmmount()) / 2;
+    	}
+    	
     	if (won) {
     		//logger.trace("My ID is " + myID + " and I won the bid for " + letter);
     		currentLetters.add(letter.getCharacter());
+    		this.narrowPossibilities();
     	}
     	else {
     		//logger.trace("My ID is " + myID + " and I lost the bid for " + letter);
