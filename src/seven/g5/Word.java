@@ -14,6 +14,8 @@ public class Word {
 	public Word(String s){
 		word=s;
 		length=s.length();
+		if (length == 7)
+			score += 50;
 		for(int i = 0; i<s.length();i++){
 			char c = s.charAt(i);
 			score += LetterGame.letterScore(c);
